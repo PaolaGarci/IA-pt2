@@ -27,11 +27,14 @@ def predict_value(image,model):
 	
 	return res
 
-df=pd.read_csv('small_df.csv')
-df = df.set_index('Time')
-df.index = pd.to_datetime(df.index)
-df.sort_index(inplace = True)
-df2 = df[~df.index.duplicated(keep='first')]
+@st.cache
+def load_data(path):
+	df=pd.read_csv(path)
+	df = df.set_index('Time')
+	df.index = pd.to_datetime(df.index)
+	df.sort_index(inplace = True)
+	df2 = df[~df.index.duplicated(keep='first')]
+	return (df,df2)
 
 st.header('GRIP Team')
 st.header("Stage predictor using images")
@@ -39,7 +42,7 @@ st.write("Upload image to get its corresponding stage")
 
 uploaded_file = st.file_uploader("Choose an image...")
 
-
+df, df2=load_data('small_df.csv')
 
 Classifier=keras.models.load_model('Classifier')
 CNN=keras.models.load_model('CNN', custom_objects = {"r2_score": r2_score})
